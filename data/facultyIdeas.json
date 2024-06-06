@@ -1,0 +1,160 @@
+[
+    {
+        "id": 1,
+        "title": "GDS(Gesture Decode System)",
+        "description": "There is an issue with the navbar on the homepage. It is not displaying correctly on mobile devices.",
+        "Advisor": "Zeeshan Rana",
+        "Tags": [
+            {
+                "val": "Web Dev"
+            }
+        ],
+        "FYP_type": "Development",
+        "contact": "zeeshan.rana@lhr.nu.edu.pk",
+        "Faculty_img": "/img/yoshi.png"
+    },
+    {
+        "id": 2,
+        "title": "Decentralized Record Filling System",
+        "description": "The footer is currently empty. We need to add some links to important pages on the site.",
+        "Advisor": "Hajra Waheed",
+        "Tags": [
+            {
+                "val": "ML"
+            },
+            {
+                "val": "Web Dev"
+            }
+        ],
+        "FYP_type": "R & D",
+        "contact": "hajra.waheed@lhr.nu.edu.pk",
+        "Faculty_img": "/img/yoshi.png"
+    },
+    {
+        "id": 3,
+        "title": "NaviGo",
+        "description": "The footer  is currently empty. We need to add some links to important pages on the site",
+        "Advisor": "Usama Khan",
+        "Tags": [
+            {
+                "val": "APP Dev"
+            },
+            {
+                "val": "AI"
+            }
+        ],
+        "FYP_type": "Research",
+        "contact": "usama.khan@lhr.nu.edu.pk",
+        "Faculty_img": "/img/yoshi.png"
+    },
+    {
+        "id": 4,
+        "title": "Hand Sign Recognition",
+        "description": "The site is currently running slow. We need to optimize images and minify CSS and JavaScript to improve the site's loading speed.",
+        "Advisor": "Usama Hassan",
+        "Tags": [
+            {
+                "val": "AI"
+            },
+            {
+                "val": "Web Dev"
+            }
+        ],
+        "FYP_type": "R & D",
+        "contact": "usama.hassan@lhr.nu.edu.pk",
+        "Faculty_img": "/img/yoshi.png"
+    },
+    {
+        "id": 5,
+        "title": "NFT MarketPlace",
+        "description": "There are no links to our social media profiles on the site. We need to add links to our Facebook, Twitter, and Instagram accounts in the header and footer.",
+        "Advisor": "Farasat Shamir ",
+        "Tags": [
+            {
+                "val": "APP Dev"
+            }
+        ],
+        "FYP_type": "Development",
+        "contact": "farasat.shamir@lhr.nu.edu.pk",
+        "Faculty_img": "/img/yoshi.png"
+    },
+    {
+        "id": 6,
+        "title": "BotanicSense",
+        "description": "The site does not have a search feature. We need to add a search bar in the header that allows users to search for specific pages or products on the site.",
+        "Advisor": "Danyal Farhat",
+        "Tags": [
+            {
+                "val": "Web Dev"
+            }
+        ],
+        "FYP_type": "Development",
+        "contact": "danyal.farhat@lhr.nu.edu.pk",
+        "Faculty_img": "/img/yoshi.png"
+    },
+    {
+        "id": 7,
+        "title": "Automated Testing System",
+        "description": "The site's layout is not responsive. It does not look good on mobile devices. We need to make sure the site looks good on all devices.",
+        "Advisor": "Ishaq Raza",
+        "Tags": [
+            {
+                "val": "AI"
+            },
+            {
+                "val": "NLP"
+            }
+        ],
+        "FYP_type": "Research",
+        "contact": "ishaq.raza@lhr.nu.edu.pk",
+        "Faculty_img": "/img/yoshi.png"
+    },
+    {
+        "id": 8,
+        "title": "OBE System",
+        "description": "We do not have a way for users to sign up for our newsletter. We need to add a newsletter signup form in the footer that allows users to enter their email address.",
+        "Advisor": "Saifullah Tanvir",
+        "Tags": [
+            {
+                "val": "AI"
+            }
+        ],
+        "FYP_type": "Development",
+        "contact": "saifullah.tanvir@lhr.nu.edu.pk",
+        "Faculty_img": "/img/yoshi.png"
+    },
+    {
+        "id": 9,
+        "title": "Automated Recruitement System",
+        "description": "The site's design is outdated. We need to update the site's color scheme and font to make it look more modern.",
+        "Advisor": "SaifUllah",
+        "Tags": [
+            {
+                "val": "AI"
+            },
+            {
+                "val": "Web Dev"
+            }
+        ],
+        "FYP_type": "R & D",
+        "contact": "saif.ullah@nu.edu.pk",
+        "Faculty_img": "/img/yoshi.png"
+    },
+    {
+        "id": 10,
+        "title": "ECG Emotion Detection (EED)",
+        "description": "We need to add more products to the online store. We also need to add categories and filters to make it easier for users to find what they are looking for.",
+        "Advisor": "Saif Ul Islam",
+        "Tags": [
+            {
+                "val": "AI"
+            },
+            {
+                "val": "APP Dev"
+            }
+        ],
+        "FYP_type": "Research",
+        "contact": "saif.islam@lhr.nu.edu.pk",
+        "Faculty_img": "/img/yoshi.png"
+    }
+]
