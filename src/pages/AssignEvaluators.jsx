@@ -119,6 +119,7 @@ const AssignEvaluators = () => {
         selectedGroupIds: groupsIds,
       })
       .then((response) => {
+        getAllFaculties();
         console.log(response.data);
       })
       .catch((err) => {
