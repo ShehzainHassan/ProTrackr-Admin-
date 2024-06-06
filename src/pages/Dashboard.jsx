@@ -66,6 +66,9 @@ export default function Dashboard() {
       });
   }, []);
 
+  const totalEvaluators = faculty.filter((f) =>
+    f.roles.includes("Evaluator")
+  ).length;
   return (
     <Box p={5} overflowX="hidden">
       <Heading mb={6}>Key Metrics</Heading>
@@ -87,7 +90,7 @@ export default function Dashboard() {
         />
         <MetricBox
           title="Assigned Evaluators"
-          count={15}
+          count={totalEvaluators}
           backgroundColor="red.500"
         />
       </Flex>
