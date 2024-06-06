@@ -120,36 +120,38 @@ export default function ManageStudents() {
                     p={4}
                     boxShadow="md"
                     bg="gray.100">
-                    <Flex align="center">
-                      <Image
-                        borderRadius="full"
-                        boxSize="50px"
-                        src={`data:image/jpeg;base64,${student.photo}`}
-                        alt={`${student.firstName} ${student.lastName}`}
-                        mr={4}
-                      />
-                      <Box>
-                        <Heading size="sm">
-                          {student.firstName} {student.lastName}
-                        </Heading>
-                        {/* <Text>Roll No: {student.rollNo}</Text>
-                        <Text>CGPA: {student.cgpa}</Text>
-                        <Text>Batch: {student.batch}</Text> */}
-
-                        <Button
-                          onClick={() =>
-                            changeAccountStatus(
-                              student,
-                              student._id,
-                              student.isDisabled ? "enable" : "disable"
-                            )
-                          }
-                          colorScheme={student.isDisabled ? "green" : "red"}>
-                          {student.isDisabled
-                            ? "Enable Account"
-                            : "Disable Account"}
-                        </Button>
-                      </Box>
+                    <Flex align="center" justify="space-between">
+                      <Flex align="center">
+                        <Image
+                          borderRadius="full"
+                          boxSize="50px"
+                          src={`data:image/jpeg;base64,${student.photo}`}
+                          alt={`${student.firstName} ${student.lastName}`}
+                          mr={4}
+                        />
+                        <Box color={student.isDisabled ? "gray.500" : "black"}>
+                          <Heading size="sm">
+                            {student.firstName} {student.lastName}
+                          </Heading>
+                          <Text>Roll No: {student.rollNo}</Text>
+                          <Text>CGPA: {student.cgpa}</Text>
+                          <Text>Batch: {student.batch}</Text>
+                        </Box>
+                      </Flex>
+                      <Button
+                        onClick={() =>
+                          changeAccountStatus(
+                            student,
+                            student._id,
+                            student.isDisabled ? "enable" : "disable"
+                          )
+                        }
+                        colorScheme={student.isDisabled ? "green" : "red"}
+                        ml={4}>
+                        {student.isDisabled
+                          ? "Enable Account"
+                          : "Disable Account"}
+                      </Button>
                     </Flex>
                   </Box>
                 ))}
