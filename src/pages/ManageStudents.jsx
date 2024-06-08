@@ -1,9 +1,13 @@
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
   Image,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -13,9 +17,10 @@ import {
   Stack,
   Text,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import Loading from "../Components/Loading";
 
 const SemesterCard = ({ title, subtitle, onButtonClick }) => {
   return (
@@ -53,22 +58,65 @@ export default function ManageStudents() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [students, setStudents] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("");
-
+  const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
   const getAllUsers = () => {
     axios.get("http://localhost:3002/allusers").then((response) => {
       setStudents(response.data);
     });
   };
+
   useEffect(() => {
     getAllUsers();
   }, []);
 
   const handleCardButtonClick = (filterValue) => {
     setSelectedFilter(filterValue);
-
     onOpen();
   };
-
+  const registerStudents = () => {
+    setIsLoading(true);
+    axios
+      .post("http://localhost:3002/readCSV_UploadStudents")
+      .then((response) => {
+        console.log(response.data);
+        setIsLoading(false);
+        toast({
+          title: `${response.data} Students Registered Successfully`,
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+          status: "success",
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+  const uploadCSV = (file) => {
+    const formData = new FormData();
+    console.log(file);
+    formData.append("file", file);
+    axios
+      .post("http://localhost:3002/uploadCSV", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+  const handleFileUpload = (event) => {
+    const selectedFile = event.target.files[0];
+    console.log("Selected file:", selectedFile);
+    setFile(selectedFile);
+    uploadCSV(selectedFile);
+  };
   const changeAccountStatus = async (student, id, status) => {
     await axios
       .put("http://localhost:3002/changeAccountStatus", {
@@ -104,6 +152,24 @@ export default function ManageStudents() {
           onButtonClick={() => handleCardButtonClick("Spring 2024")}
         />
       </Flex>
+
+      <Heading mt={10} mb={4}>
+        Register Students Through CSV
+      </Heading>
+      <FormControl mb={4}>
+        <FormLabel>Upload CSV File</FormLabel>
+        <Input type="file" onChange={(e) => handleFileUpload(e)} />
+      </FormControl>
+      <Flex flexDirection="column" alignItems="center">
+        <Button
+          isDisabled={!file}
+          colorScheme="purple"
+          onClick={registerStudents}>
+          Register Students
+        </Button>
+        {isLoading && <Loading />}
+      </Flex>
+
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
         <ModalContent>
