@@ -1,20 +1,23 @@
-import { AddIcon } from "@chakra-ui/icons";
+import { AddIcon, EditIcon, CloseIcon } from "@chakra-ui/icons";
 import {
   Avatar,
   Box,
   Button,
   Flex,
   Heading,
+  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  ModalFooter,
   SimpleGrid,
   Stack,
   Text,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -27,6 +30,11 @@ const AssignEvaluators = () => {
   const [evaluatorPanels, setEvaluatorPanels] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [modalContent, setModalContent] = useState("faculties");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(null);
+  const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(null);
+  const [isEditFacultyModalOpen, setIsEditFacultyModalOpen] = useState(null);
+  const [selectedPanel, setSelectedPanel] = useState(null);
+  const toast = useToast();
   const getAllGroups = () => {
     axios
       .get("http://localhost:3002/allGroups")
@@ -49,11 +57,11 @@ const AssignEvaluators = () => {
       });
   };
 
-  const handleFacultyClick = (facultyId) => {
+  const handleFacultyClick = (faculty) => {
     setSelectedFaculties((prevSelected) =>
-      prevSelected.includes(facultyId)
-        ? prevSelected.filter((id) => id !== facultyId)
-        : [...prevSelected, facultyId]
+      prevSelected.some((f) => f._id === faculty._id)
+        ? prevSelected.filter((f) => f._id !== faculty._id)
+        : [...prevSelected, faculty]
     );
   };
 
@@ -75,7 +83,6 @@ const AssignEvaluators = () => {
   }, []);
 
   const groupsToShow = () => {
-    console.log(selectedFaculties);
     axios
       .post("http://localhost:3002/groupsToShow", selectedFaculties)
       .then((response) => {
@@ -97,6 +104,7 @@ const AssignEvaluators = () => {
   const handleClose = () => {
     setModalContent("faculties");
     setSelectedGroups([]);
+    setSelectedFaculties([]);
     onClose();
   };
 
@@ -136,16 +144,156 @@ const AssignEvaluators = () => {
         console.error("Error updating role ", err);
       });
   };
-
+  const renderModalContent = () => {
+    if (modalContent === "faculties" || modalContent === "EditFaculties") {
+      return (
+        <>
+          {modalContent === "faculties" && (
+            <Flex wrap="wrap" justifyContent="space-between" mb={4}>
+              <Text>
+                Select <strong>2-4 members</strong> to make a panel
+              </Text>
+              <Button
+                colorScheme="green"
+                isDisabled={
+                  selectedFaculties.length < 2 || selectedFaculties.length > 4
+                }
+                onClick={handleAssignFYPClick}>
+                Assign FYP
+              </Button>
+            </Flex>
+          )}
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+            {faculties.map(
+              (faculty) =>
+                !faculty.roles.includes("Evaluator") && (
+                  <Box
+                    key={faculty._id}
+                    borderWidth="1px"
+                    borderRadius="lg"
+                    p={4}
+                    boxShadow="md"
+                    bg={
+                      selectedFaculties.some((f) => f._id === faculty._id)
+                        ? "yellow.300"
+                        : "gray.100"
+                    }
+                    _hover={{
+                      transform: "scale(1.05)",
+                      transition:
+                        "transform 0.3s ease, background-color 0.3s ease",
+                      bg: selectedFaculties.some((f) => f._id === faculty._id)
+                        ? "yellow.400"
+                        : "gray.200",
+                    }}
+                    onClick={() => handleFacultyClick(faculty)}
+                    cursor="pointer">
+                    <Flex align="center">
+                      <Avatar
+                        size="md"
+                        src={`data:image/jpeg;base64,${faculty.photo}`}
+                        mr={4}
+                      />
+                      <Box>
+                        <Heading size="sm">
+                          {faculty.firstName} {faculty.lastName}
+                        </Heading>
+                        <Text>{faculty.email}</Text>
+                        {selectedFaculties.some(
+                          (f) => f._id === faculty._id
+                        ) && (
+                          <Text color="green.500" fontWeight="bold">
+                            SELECTED
+                          </Text>
+                        )}
+                      </Box>
+                    </Flex>
+                  </Box>
+                )
+            )}
+          </SimpleGrid>
+        </>
+      );
+    } else if (modalContent === "groups" || modalContent === "EditGroups") {
+      return (
+        <>
+          <Flex wrap="wrap" justifyContent="space-between" mb={4}>
+            {modalContent === "groups" && (
+              <>
+                <Text>
+                  Select up to <strong>3 groups</strong> to create a panel
+                </Text>
+                <Button
+                  colorScheme="green"
+                  isDisabled={selectedGroups.length === 0}
+                  onClick={createEvaluatorGroup}>
+                  Create Panel
+                </Button>
+              </>
+            )}
+          </Flex>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+            {groups.map(
+              (group) =>
+                group.hasAssignedEvaluators === false && (
+                  <Box
+                    key={group._id}
+                    borderWidth="1px"
+                    borderRadius="lg"
+                    p={4}
+                    boxShadow="md"
+                    bg={
+                      selectedGroups.some((g) => g._id === group._id)
+                        ? "yellow.300"
+                        : "gray.100"
+                    }
+                    _hover={{
+                      transform: "scale(1.05)",
+                      transition:
+                        "transform 0.3s ease, background-color 0.3s ease",
+                      bg: selectedGroups.some((g) => g._id === group._id)
+                        ? "yellow.400"
+                        : "gray.200",
+                    }}
+                    onClick={() => handleGroupClick(group)}
+                    cursor="pointer">
+                    <Flex align="center">
+                      <Box>
+                        <Heading size="sm">{group.title}</Heading>
+                        <Text>Supervisor: {group.advisor}</Text>
+                        {selectedGroups.some((g) => g._id === group._id) && (
+                          <Text color="green.500" fontWeight="bold">
+                            SELECTED
+                          </Text>
+                        )}
+                      </Box>
+                    </Flex>
+                  </Box>
+                )
+            )}
+          </SimpleGrid>
+        </>
+      );
+    }
+  };
+  const openEditModal = (panel) => {
+    setSelectedPanel(panel);
+    setIsEditModalOpen(true);
+  };
+  const closeEditModal = () => {
+    setModalContent("faculties");
+    setIsEditModalOpen(false);
+  };
   const createEvaluatorGroup = () => {
     if (
       selectedGroups.length > 0 &&
       selectedFaculties.length >= 2 &&
       selectedFaculties.length <= 4
     ) {
-      const selectedFacultiesDetails = selectedFaculties.map((facultyId) => {
-        const faculty = faculties.find((f) => f._id === facultyId);
+      const selectedFacultiesDetails = selectedFaculties.map((fac) => {
+        const faculty = faculties.find((f) => f._id === fac._id);
         return {
+          _id: faculty._id,
           firstName: faculty.firstName,
           lastName: faculty.lastName,
           email: faculty.email,
@@ -156,21 +304,29 @@ const AssignEvaluators = () => {
       selectedFaculties.forEach((facultyId) => {
         updateRoles(facultyId);
       });
-      const selectedGroupTitles = selectedGroups.map((group) => group.title);
-      const selectedGroupIds = selectedGroups.map((group) => group._id);
-      selectedGroupIds.forEach((id) => {
-        updateGroup(id);
+
+      const selectedGroupsDetails = selectedGroups.map((group) => ({
+        id: group._id,
+        title: group.title,
+        groupId: group.id,
+      }));
+
+      selectedGroupsDetails.forEach((group) => {
+        updateGroup(group.id);
       });
 
       const newEvaluatorPanel = {
         faculties: selectedFacultiesDetails,
-        groups: selectedGroupTitles,
+        groups: selectedGroupsDetails,
       };
+
       axios
         .post("http://localhost:3002/createPanel", newEvaluatorPanel)
         .then((response) => {
           setSelectedGroups([]);
           setSelectedFaculties([]);
+          getAllFaculties();
+          getAllGroups();
           getAllEvaluatorPanels();
           addEvaluatorsIdsToGroup();
           handleClose();
@@ -189,6 +345,190 @@ const AssignEvaluators = () => {
         ? [...prevSelected, group]
         : prevSelected
     );
+  };
+
+  const deletePanel = (panelId) => {
+    axios
+      .delete(`http://localhost:3002/deletePanel/${panelId}`)
+      .then((response) => {
+        console.log("Panel deleted successfully", response.data);
+        getAllGroups();
+        getAllFaculties();
+        getAllEvaluatorPanels();
+      })
+      .catch((err) => {
+        console.error("Error deleting panel", err);
+      });
+  };
+  const openEditGroupModal = () => {
+    closeEditModal();
+    setModalContent("EditGroups");
+    setIsEditGroupModalOpen(true);
+  };
+  const openEditFacultyModal = () => {
+    const groupIdsString = selectedPanel.groups
+      .map((group) => group.groupId)
+      .join(",");
+    axios
+      .get(
+        `http://localhost:3002/evaluatorsToShow/${selectedPanel._id}/${groupIdsString}`
+      )
+      .then((response) => {
+        setFaculties(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching evaluators", error);
+      });
+    closeEditModal();
+    setModalContent("EditFaculties");
+    setSelectedFaculties([]);
+    setIsEditFacultyModalOpen(true);
+  };
+
+  const closeEditGroupModal = () => {
+    setIsEditGroupModalOpen(false);
+    setModalContent("faculties");
+  };
+  const closeEditFacultyModal = () => {
+    setIsEditFacultyModalOpen(false);
+    getAllFaculties();
+    setModalContent("faculties");
+    setSelectedFaculties([]);
+  };
+
+  const addNewFaculty = () => {
+    if (selectedFaculties.length > 0) {
+      selectedFaculties.forEach((facultyId) => {
+        updateRoles(facultyId);
+      });
+
+      const updatedFaculties = selectedFaculties.map((faculty) => ({
+        _id: faculty._id,
+        firstName: faculty.firstName,
+        lastName: faculty.lastName,
+        email: faculty.email,
+        photo: faculty.photo,
+      }));
+      const newGroups = selectedGroups.map((group) => ({
+        id: group._id,
+        title: group.title,
+        groupId: group.id,
+      }));
+      const updatedPanel = {
+        ...selectedPanel,
+        groups: [...selectedPanel.groups, ...newGroups],
+        faculties: [...selectedPanel.faculties, ...updatedFaculties],
+      };
+      console.log(updatedFaculties);
+      const panelUpdateData = {
+        newGroups: selectedGroups,
+        newFaculties: updatedFaculties,
+      };
+      console.log(panelUpdateData);
+      axios
+        .put(
+          `http://localhost:3002/updatePanel/${selectedPanel._id}`,
+          panelUpdateData
+        )
+        .then((response) => {
+          setSelectedPanel(response.data);
+          setSelectedGroups([]);
+          setSelectedFaculties([]);
+          closeEditFacultyModal();
+          setModalContent("faculties");
+          getAllFaculties();
+          getAllGroups();
+          getAllEvaluatorPanels();
+          openEditModal(response.data);
+          toast({
+            title: "Panel updated",
+            description: "Faculty Member added successfully",
+            duration: 3000,
+            isClosable: true,
+            position: "top",
+            status: "success",
+          });
+        })
+        .catch((error) => {
+          console.error("Error updating panel ", error);
+        });
+    }
+  };
+  const addNewGroups = () => {
+    if (selectedGroups.length > 0) {
+      const newGroups = selectedGroups.map((group) => ({
+        id: group._id,
+        title: group.title,
+        groupId: group.id,
+      }));
+      const updatedPanel = {
+        ...selectedPanel,
+        groups: [...selectedPanel.groups, ...newGroups],
+      };
+
+      const panelUpdateData = {
+        newGroups: selectedGroups,
+        newFaculties: selectedPanel.faculties, // Add new faculties if required
+      };
+
+      axios
+        .put(
+          `http://localhost:3002/updatePanel/${selectedPanel._id}`,
+          panelUpdateData
+        )
+        .then((response) => {
+          setSelectedPanel(response.data);
+          setSelectedGroups([]);
+          setSelectedFaculties([]);
+          closeEditGroupModal();
+          setModalContent("faculties");
+          getAllEvaluatorPanels();
+          openEditModal(response.data);
+          toast({
+            title: "Panel updated",
+            description: "Group added successfully",
+            duration: 3000,
+            isClosable: true,
+            position: "top",
+            status: "success",
+          });
+        })
+        .catch((error) => {
+          console.error("Error updating panel ", error);
+        });
+    }
+  };
+  const deleteFacultyFromPanel = (facultyId) => {
+    console.log(facultyId);
+    console.log(selectedPanel._id);
+    axios
+      .delete(
+        `http://localhost:3002/deleteFacultyFromPanel?panelId=${selectedPanel._id}&facultyId=${facultyId}`
+      )
+      .then((response) => {
+        setSelectedPanel(response.data);
+        getAllEvaluatorPanels();
+        getAllFaculties();
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  const deleteGroupFromPanel = (group) => {
+    axios
+      .delete(
+        `http://localhost:3002/deleteGroupFromPanel?panelId=${selectedPanel._id}&groupId=${group.id}`
+      )
+      .then((response) => {
+        setSelectedPanel(response.data);
+        getAllEvaluatorPanels();
+        getAllGroups();
+        console.log(response.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
   return (
     <div>
@@ -217,151 +557,17 @@ const AssignEvaluators = () => {
               {modalContent === "faculties" ? "Faculties" : "Groups"}
             </ModalHeader>
             <ModalCloseButton />
-            <ModalBody>
-              <Stack spacing={4}>
-                {modalContent === "faculties" && (
-                  <Flex wrap="wrap" justifyContent="space-between" mb={4}>
-                    <Text>
-                      Select <strong>2-4 members</strong> to make a panel
-                    </Text>
-                    <Button
-                      colorScheme="green"
-                      isDisabled={
-                        selectedFaculties.length < 2 ||
-                        selectedFaculties.length > 4
-                      }
-                      onClick={handleAssignFYPClick}>
-                      Assign FYP
-                    </Button>
-                  </Flex>
-                )}
-                {modalContent === "groups" && (
-                  <Flex wrap="wrap" justifyContent="space-between" mb={4}>
-                    <Text>
-                      Select up to <strong>3 groups</strong> to create a panel
-                    </Text>
-                    <Button
-                      colorScheme="green"
-                      isDisabled={selectedGroups.length === 0}
-                      onClick={createEvaluatorGroup}>
-                      Create Panel
-                    </Button>
-                  </Flex>
-                )}
-                <Box
-                  maxHeight={
-                    modalContent === "groups" && groups.length > 4
-                      ? "400px"
-                      : "auto"
-                  }
-                  overflowX="hidden"
-                  overflowY={
-                    modalContent === "groups" && groups.length > 4
-                      ? "scroll"
-                      : "hidden"
-                  }>
-                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                    {modalContent === "faculties" &&
-                      faculties.map(
-                        (faculty) =>
-                          !faculty.roles.includes("Evaluator") && (
-                            <Box
-                              key={faculty._id}
-                              borderWidth="1px"
-                              borderRadius="lg"
-                              p={4}
-                              boxShadow="md"
-                              bg={
-                                selectedFaculties.includes(faculty._id)
-                                  ? "yellow.300"
-                                  : "gray.100"
-                              }
-                              _hover={{
-                                transform: "scale(1.05)",
-                                transition:
-                                  "transform 0.3s ease, background-color 0.3s ease",
-                                bg: selectedFaculties.includes(faculty._id)
-                                  ? "yellow.400"
-                                  : "gray.200",
-                              }}
-                              onClick={() => handleFacultyClick(faculty._id)}
-                              cursor="pointer">
-                              <Flex align="center">
-                                <Avatar
-                                  size="md"
-                                  src={`data:image/jpeg;base64,${faculty.photo}`}
-                                  mr={4}
-                                />
-                                <Box>
-                                  <Heading size="sm">
-                                    {faculty.firstName} {faculty.lastName}
-                                  </Heading>
-                                  <Text>{faculty.email}</Text>
-                                  {selectedFaculties.includes(faculty._id) && (
-                                    <Text color="green.500" fontWeight="bold">
-                                      SELECTED
-                                    </Text>
-                                  )}
-                                </Box>
-                              </Flex>
-                            </Box>
-                          )
-                      )}
-                    {modalContent === "groups" &&
-                      groups.map(
-                        (group) =>
-                          group.hasAssignedEvaluators === false && (
-                            <Box
-                              key={group._id}
-                              borderWidth="1px"
-                              borderRadius="lg"
-                              p={4}
-                              boxShadow="md"
-                              bg={
-                                selectedGroups.some((g) => g._id === group._id)
-                                  ? "yellow.300"
-                                  : "gray.100"
-                              }
-                              _hover={{
-                                transform: "scale(1.05)",
-                                transition:
-                                  "transform 0.3s ease, background-color 0.3s ease",
-                                bg: selectedGroups.some(
-                                  (g) => g._id === group._id
-                                )
-                                  ? "yellow.400"
-                                  : "gray.200",
-                              }}
-                              onClick={() => handleGroupClick(group)}
-                              cursor="pointer">
-                              <Flex align="center">
-                                <Box>
-                                  <Heading size="sm">{group.title}</Heading>
-                                  <Text>Supervisor: {group.advisor}</Text>
-                                  {selectedGroups.some(
-                                    (g) => g._id === group._id
-                                  ) && (
-                                    <Text color="green.500" fontWeight="bold">
-                                      SELECTED
-                                    </Text>
-                                  )}
-                                </Box>
-                              </Flex>
-                            </Box>
-                          )
-                      )}
-                  </SimpleGrid>
-                </Box>
-                {modalContent === "groups" && (
-                  <Button colorScheme="blue" onClick={handleBackButtonClick}>
-                    Back
-                  </Button>
-                )}
-                <Button colorScheme="blue" onClick={handleClose}>
-                  Close
+            <ModalBody>{renderModalContent()}</ModalBody>
+            {modalContent === "groups" && (
+              <ModalFooter>
+                <Button
+                  colorScheme="blue"
+                  mr={3}
+                  onClick={handleBackButtonClick}>
+                  Back
                 </Button>
-              </Stack>
-            </ModalBody>
+              </ModalFooter>
+            )}
           </ModalContent>
         </Modal>
       </Box>
@@ -382,7 +588,26 @@ const AssignEvaluators = () => {
                 transition: "transform 0.3s ease",
               }}
               p={4}
-              mb={4}>
+              mb={4}
+              position="relative">
+              <IconButton
+                icon={<CloseIcon />}
+                size="sm"
+                colorScheme="red"
+                position="absolute"
+                top={2}
+                right={2}
+                onClick={() => deletePanel(panel._id)}
+              />
+              <IconButton
+                icon={<EditIcon />}
+                size="sm"
+                position="absolute"
+                colorScheme="green"
+                top={14}
+                right={2}
+                onClick={() => openEditModal(panel)}
+              />
               <Heading size="sm">Panel {index + 1}</Heading>
               <Heading size="sm" mt={2}>
                 Panel Members
@@ -407,7 +632,7 @@ const AssignEvaluators = () => {
               <Flex wrap="wrap">
                 {panel.groups.map((group, index) => (
                   <Box key={index} mr={4} mb={2}>
-                    <Button colorScheme="blue">{group}</Button>
+                    <Button colorScheme="blue">{group.title}</Button>
                   </Box>
                 ))}
               </Flex>
@@ -415,6 +640,119 @@ const AssignEvaluators = () => {
           ))}
         </SimpleGrid>
       </Box>
+
+      <Modal isOpen={isEditModalOpen} onClose={closeEditModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Panel</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {selectedPanel && (
+              <>
+                <Heading size="md" mb={4}>
+                  Panel Members
+                </Heading>
+                <Stack spacing={4}>
+                  {selectedPanel.faculties.map((faculty, index) => (
+                    <Flex key={index} align="center">
+                      <Avatar
+                        size="md"
+                        src={`data:image/jpeg;base64,${faculty.photo}`}
+                        mr={4}
+                      />
+                      <Text>
+                        {faculty.firstName} {faculty.lastName}
+                      </Text>
+                      <IconButton
+                        icon={<CloseIcon />}
+                        size="sm"
+                        colorScheme="red"
+                        ml="auto"
+                        isDisabled={selectedPanel.faculties.length === 2}
+                        onClick={() => {
+                          deleteFacultyFromPanel(faculty._id);
+                        }}
+                      />
+                    </Flex>
+                  ))}
+                </Stack>
+
+                <Button
+                  onClick={openEditFacultyModal}
+                  colorScheme="green"
+                  mt={4}>
+                  Add Faculty
+                </Button>
+
+                <Heading size="md" mt={6} mb={4}>
+                  Groups Assigned
+                </Heading>
+                <Stack spacing={4}>
+                  {selectedPanel.groups.map((group, index) => (
+                    <Flex key={index} align="center">
+                      <Text>{group.title}</Text>
+                      <IconButton
+                        icon={<CloseIcon />}
+                        size="sm"
+                        colorScheme="red"
+                        ml="auto"
+                        isDisabled={selectedPanel.groups.length === 1}
+                        onClick={() => {
+                          deleteGroupFromPanel(group);
+                        }}
+                      />
+                    </Flex>
+                  ))}
+                </Stack>
+
+                <Button onClick={openEditGroupModal} colorScheme="green" mt={4}>
+                  Add Groups
+                </Button>
+              </>
+            )}
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={closeEditModal}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={isEditGroupModalOpen} onClose={closeEditGroupModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Add Groups</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>{renderModalContent()}</ModalBody>
+          <ModalFooter>
+            <Button
+              onClick={addNewGroups}
+              colorScheme="blue"
+              isDisabled={selectedGroups.length === 0}>
+              Add Group
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={isEditFacultyModalOpen} onClose={closeEditFacultyModal}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Add Faculty</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>{renderModalContent()}</ModalBody>
+          <ModalFooter>
+            <Button
+              onClick={addNewFaculty}
+              colorScheme="blue"
+              isDisabled={selectedFaculties.length === 0}>
+              Add Faculty
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
