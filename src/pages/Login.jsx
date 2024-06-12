@@ -115,20 +115,6 @@ export default function Login() {
             Login
           </Button>
 
-          <Box ml="auto">
-            <Text>
-              <Link
-                to="/recoveryEmail"
-                style={{
-                  color: "purple",
-                  fontWeight: "bold",
-                  fontSize: "small",
-                }}>
-                Forgot Password?
-              </Link>
-            </Text>
-          </Box>
-
           {isError && (
             <Alert status="error">
               <AlertIcon />
