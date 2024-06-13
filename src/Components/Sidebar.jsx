@@ -130,6 +130,22 @@ export default function Sidebar() {
         </NavLink>
       </ListItem>
 
+      <ListItem
+        style={
+          selectedRoute === "/uploadFYPProgress"
+            ? {
+                backgroundColor: "purple",
+                padding: "10px",
+                borderRadius: "15px",
+                transition: "background-color 0.5s ease",
+              }
+            : {}
+        }>
+        <NavLink to="/uploadFYPProgress">
+          <ListIcon as={EditIcon} color="white" />
+          Upload FYP Progress
+        </NavLink>
+      </ListItem>
       <Button
         colorScheme="purple"
         size="md"
