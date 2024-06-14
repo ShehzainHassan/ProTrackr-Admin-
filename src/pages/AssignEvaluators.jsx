@@ -34,6 +34,7 @@ const AssignEvaluators = () => {
   const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(null);
   const [isEditFacultyModalOpen, setIsEditFacultyModalOpen] = useState(null);
   const [selectedPanel, setSelectedPanel] = useState(null);
+  console.log("Groups: ", groups);
   const toast = useToast();
   const getAllGroups = () => {
     axios
@@ -361,6 +362,8 @@ const AssignEvaluators = () => {
       });
   };
   const openEditGroupModal = () => {
+    setSelectedFaculties(selectedPanel.faculties);
+    groupsToShow();
     closeEditModal();
     setModalContent("EditGroups");
     setIsEditGroupModalOpen(true);

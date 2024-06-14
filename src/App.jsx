@@ -11,7 +11,7 @@ import Login from "./pages/Login";
 import ManageStudents from "./pages/ManageStudents";
 import ManageFaculty from "./pages/ManageFaculty";
 import AssignEvaluators from "./pages/AssignEvaluators";
-
+import UploadFYPProgress from "./pages/UploadFYPProgress";
 const IsLoggedIn = !!JSON.parse(sessionStorage.getItem("LoggedEmail"));
 
 // router and routes
@@ -23,6 +23,7 @@ const router = createBrowserRouter(
       <Route path="manageStudents" element={<ManageStudents />} />
       <Route path="manageFaculty" element={<ManageFaculty />} />
       <Route path="assignEvaluators" element={<AssignEvaluators />} />
+      <Route path="uploadFYPProgress" element={<UploadFYPProgress />} />
     </Route>
   )
 );

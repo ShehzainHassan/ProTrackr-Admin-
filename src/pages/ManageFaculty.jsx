@@ -3,6 +3,10 @@ import {
   Avatar,
   Box,
   Center,
+  FormControl,
+  FormLabel,
+  Input,
+  Flex,
   Text,
   Stack,
   Button,
@@ -12,9 +16,11 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-
+import Loading from "../Components/Loading";
 const ManageFaculty = () => {
   const [faculties, setFaculty] = useState([]);
+  const [file, setFile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
   const getAllFaculties = () => {
@@ -175,12 +181,78 @@ const ManageFaculty = () => {
     getAllFaculties();
   }, []);
 
+  const uploadCSV = (file) => {
+    const formData = new FormData();
+    console.log(file);
+    formData.append("file", file);
+    axios
+      .post("http://localhost:3002/uploadCSV", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+  const handleFileUpload = (event) => {
+    const selectedFile = event.target.files[0];
+    console.log("Selected file:", selectedFile);
+    setFile(selectedFile);
+    uploadCSV(selectedFile);
+  };
+  const registerFaculty = () => {
+    setIsLoading(true);
+    axios
+      .post("http://localhost:3002/readCSV_registerFaculty")
+      .then((response) => {
+        console.log(response.data);
+        setIsLoading(false);
+        toast({
+          title: `${response.data} Faculty Members Registered Successfully`,
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+          status: "success",
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
   return (
-    <Center py={6} flexWrap="wrap">
-      {faculties.map((faculty) => (
-        <FacultyCard key={faculty._id} faculty={faculty} />
-      ))}
-    </Center>
+    <>
+      <Heading mt={10} mb={4}>
+        Register Students Through CSV
+      </Heading>
+      <FormControl mb={4}>
+        <FormLabel>Upload CSV File</FormLabel>
+        <Input
+          type="file"
+          accept=".csv"
+          onChange={(e) => handleFileUpload(e)}
+        />
+      </FormControl>
+      <Flex flexDirection="column" alignItems="center">
+        <Button
+          onClick={registerFaculty}
+          isDisabled={!file}
+          colorScheme="purple">
+          Register Faculty
+        </Button>
+        {isLoading && <Loading />}
+      </Flex>
+
+      <Center py={6} flexWrap="wrap">
+        {faculties.map((faculty) => (
+          <FacultyCard key={faculty._id} faculty={faculty} />
+        ))}
+      </Center>
+    </>
   );
 };
 export default ManageFaculty;

@@ -158,7 +158,11 @@ export default function ManageStudents() {
       </Heading>
       <FormControl mb={4}>
         <FormLabel>Upload CSV File</FormLabel>
-        <Input type="file" onChange={(e) => handleFileUpload(e)} />
+        <Input
+          type="file"
+          accept=".csv"
+          onChange={(e) => handleFileUpload(e)}
+        />
       </FormControl>
       <Flex flexDirection="column" alignItems="center">
         <Button
@@ -188,13 +192,31 @@ export default function ManageStudents() {
                     bg="gray.100">
                     <Flex align="center" justify="space-between">
                       <Flex align="center">
-                        <Image
-                          borderRadius="full"
-                          boxSize="50px"
-                          src={`data:image/jpeg;base64,${student.photo}`}
-                          alt={`${student.firstName} ${student.lastName}`}
-                          mr={4}
-                        />
+                        {student.photo ? (
+                          <Image
+                            borderRadius="full"
+                            boxSize="50px"
+                            src={`data:image/jpeg;base64,${student.photo}`}
+                            alt={`${student.firstName} ${student.lastName}`}
+                            mr={4}
+                          />
+                        ) : (
+                          <Box
+                            borderRadius="full"
+                            boxSize="50px"
+                            bg="blue.600"
+                            color="white"
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                            fontSize="xl"
+                            fontWeight="bold"
+                            mr={4}>
+                            {`${student.firstName.charAt(
+                              0
+                            )}${student.lastName.charAt(0)}`}
+                          </Box>
+                        )}
                         <Box color={student.isDisabled ? "gray.500" : "black"}>
                           <Heading size="sm">
                             {student.firstName} {student.lastName}
